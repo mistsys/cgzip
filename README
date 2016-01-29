@@ -21,3 +21,14 @@ However cgzip is part of a much larger repo of stuff from youtube, so
 I extracted just the cgzip bit, and the LICENSE file, and made this
 repo.
 
+------------------------------------
+
+Specific versions benchmarked above:
+
+flate: go 1.5.2
+github.com/bkaradzic/go-lz4		74ddf82598bc4745b965729e9c6a463bedd33049
+github.com/cyberdelia/lzo		82ca2a37bbe6fbe4b616e66e8cbd4ababd5b892d
+github.com/golang/snappy		723cc1e459b8eea2dea4583200fd60757d40097a
+github.com/klauspost/compress/flate	112706bf3743c241303219f9c5ce2e6635f69221
+github.com/youtube/vitess/go/cgzip	460b632f05bc4c824471e0d9635e611cad788bbf
+
