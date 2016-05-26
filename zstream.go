@@ -13,24 +13,23 @@ package cgzip
 #include "zlib.h"
 
 // inflateInit2 is a macro, so using a wrapper function
-int zstream_inflate_init(char *strm) {
+int zstream_inflate_init(char *strm, int windowBits) {
   ((z_stream*)strm)->zalloc = Z_NULL;
   ((z_stream*)strm)->zfree = Z_NULL;
   ((z_stream*)strm)->opaque = Z_NULL;
   ((z_stream*)strm)->avail_in = 0;
   ((z_stream*)strm)->next_in = Z_NULL;
-  return inflateInit2((z_stream*)strm,
-                      16+15); // 16 makes it understand only gzip files
+  return inflateInit2((z_stream*)strm, windowBits);
 }
 
 // deflateInit2 is a macro, so using a wrapper function
 // using deflateInit2 instead of deflateInit to be able to specify gzip format
-int zstream_deflate_init(char *strm, int level) {
+int zstream_deflate_init(char *strm, int level, int windowBits) {
   ((z_stream*)strm)->zalloc = Z_NULL;
   ((z_stream*)strm)->zfree = Z_NULL;
   ((z_stream*)strm)->opaque = Z_NULL;
   return deflateInit2((z_stream*)strm, level, Z_DEFLATED,
-                      16+15, // 16 makes it a gzip file, 15 is default
+                      windowBits,
                       8, Z_DEFAULT_STRATEGY); // default values
 }
 
@@ -90,7 +89,11 @@ const (
 type zstream [unsafe.Sizeof(C.z_stream{})]C.char
 
 func (strm *zstream) inflateInit() error {
-	result := C.zstream_inflate_init(&strm[0])
+	return strm.inflateInitWindowBits(16 + 15) // 16 makes it understand only gzip files
+}
+
+func (strm *zstream) inflateInitWindowBits(windowBits int) error {
+	result := C.zstream_inflate_init(&strm[0], C.int(windowBits))
 	if result != Z_OK {
 		return fmt.Errorf("cgzip: failed to initialize inflate (%v): %v", result, strm.msg())
 	}
@@ -98,7 +101,14 @@ func (strm *zstream) inflateInit() error {
 }
 
 func (strm *zstream) deflateInit(level int) error {
-	result := C.zstream_deflate_init(&strm[0], C.int(level))
+	return strm.deflateInitWindowBits(
+		level,
+		16+15, // 16 makes it a gzip file, 15 is default
+	)
+}
+
+func (strm *zstream) deflateInitWindowBits(level, windowBits int) error {
+	result := C.zstream_deflate_init(&strm[0], C.int(level), C.int(windowBits))
 	if result != Z_OK {
 		return fmt.Errorf("cgzip: failed to initialize deflate (%v): %v", result, strm.msg())
 	}

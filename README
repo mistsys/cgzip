@@ -1,3 +1,13 @@
+Forked by Hugh Emberson <hemberson@storreduce.com> to add support for
+compressing and decompressing raw Flate streams.
+
+A GZip stream is a Flate stream with a header and a trailer.  This
+fork allows us to avoid outputting the header and trailer during
+compression.
+
+Below is the original README from https://github.com/mistsys/cgzip
+--
+
 
 Cloned from
   github.com/youtube/vitess/go/cgzip
