@@ -83,6 +83,10 @@ func (z *reader) Read(p []byte) (int, error) {
 			z.skipIn = ret == Z_OK && z.strm.availOut() == 0
 			return have, z.err
 		}
+		if ret == Z_STREAM_END {
+			z.err = io.EOF
+			return 0, z.err
+		}
 	}
 }
 
