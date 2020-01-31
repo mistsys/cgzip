@@ -22,3 +22,8 @@ func NewFlateWriterLevelBuffer(w io.Writer, level, bufferSize int) (*Writer, err
 	}
 	return z, nil
 }
+
+func Reset(z *Writer, level int) error {
+	z.err = nil
+	return z.strm.deflateInitWindowBits(level, -15)
+}
