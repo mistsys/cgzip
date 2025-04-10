@@ -66,6 +66,7 @@ func (z *reader) Read(p []byte) (int, error) {
 			// error, whatever it is.
 			if (z.err != nil && z.err != io.EOF) || (n == 0 && z.err == io.EOF) {
 				z.strm.inflateEnd()
+				runtime.SetFinalizer(z, nil) // finalizer isn't needed once we've called inflateEnd()
 				return 0, z.err
 			}
 
@@ -79,6 +80,7 @@ func (z *reader) Read(p []byte) (int, error) {
 		if err != nil {
 			z.err = err
 			z.strm.inflateEnd()
+			runtime.SetFinalizer(z, nil) // finalizer isn't needed once we've called inflateEnd()
 			return 0, z.err
 		}
 
@@ -100,6 +102,7 @@ func (z *reader) Close() error {
 		return nil
 	}
 	z.strm.inflateEnd()
+	runtime.SetFinalizer(z, nil) // finalizer isn't needed once we've called inflateEnd()
 	z.err = io.EOF
 	return nil
 }

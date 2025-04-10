@@ -97,6 +97,7 @@ func (z *Writer) write(p []byte, flush int) int {
 			n, z.err = z.w.Write(z.out[from:have])
 			if z.err != nil {
 				z.strm.deflateEnd()
+				runtime.SetFinalizer(z, nil) // finalizer isn't needed now that we've called deflateEnd
 				return 0
 			}
 			from += n
@@ -142,6 +143,7 @@ func (z *Writer) Close() error {
 		return z.err
 	}
 	z.strm.deflateEnd()
+	runtime.SetFinalizer(z, nil) // finalizer isn't needed now that we've called deflateEnd
 	z.err = io.EOF
 	return nil
 }
