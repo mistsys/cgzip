@@ -4,7 +4,10 @@
 
 package cgzip
 
-import "io"
+import (
+	"io"
+	"runtime"
+)
 
 // err starts out as nil
 // we will call inflateEnd when we set err to a value:
@@ -27,6 +30,8 @@ func NewReaderBuffer(r io.Reader, bufferSize int) (io.ReadCloser, error) {
 	if err := z.strm.inflateInit(); err != nil {
 		return nil, err
 	}
+	// make sure we clean up any buffers allocated by the C code if we aren't Closed by the caller
+	runtime.SetFinalizer(z, (*reader).Close)
 	return z, nil
 }
 

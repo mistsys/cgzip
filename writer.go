@@ -7,6 +7,7 @@ package cgzip
 import (
 	"fmt"
 	"io"
+	"runtime"
 )
 
 const (
@@ -67,6 +68,8 @@ func NewWriterLevelBuffer(w io.Writer, level, bufferSize int) (*Writer, error) {
 	if err := z.strm.deflateInit(level); err != nil {
 		return nil, err
 	}
+	// make sure we clean up any buffers allocated by the C code if we aren't Closed by the caller
+	runtime.SetFinalizer(z, (*Writer).Close)
 	return z, nil
 }
 
